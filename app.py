@@ -1,20 +1,11 @@
 import gradio as gr
 from huggingface_hub import InferenceClient
 
-"""
-For more information on `huggingface_hub` Inference API support, please check the docs: https://huggingface.co/docs/huggingface_hub/v0.22.2/en/guides/inference
-"""
+# Initialize the Hugging Face model
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
 
-
-def respond(
-    message,
-    history: list[tuple[str, str]],
-    system_message,
-    max_tokens,
-    temperature,
-    top_p,
-):
+def respond(message, history: list[tuple[str, str]], system_message, max_tokens, temperature, top_p):
+    # Prepare the messages for the model
     messages = [{"role": "system", "content": system_message}]
 
     for val in history:
@@ -27,25 +18,30 @@ def respond(
 
     response = ""
 
-    for message in client.chat_completion(
+    # Generate the response using the model
+    for msg in client.chat_completion(
         messages,
         max_tokens=max_tokens,
         stream=True,
         temperature=temperature,
         top_p=top_p,
     ):
-        token = message.choices[0].delta.content
-
+        token = msg.choices[0].delta.content
         response += token
         yield response
 
-"""
-For information on how to customize the ChatInterface, peruse the gradio docs: https://www.gradio.app/docs/chatinterface
-"""
+# Define the system message
+system_message = (
+    "You are a Fitness Coach chatbot. Your purpose is to assist users with personalized fitness advice, "
+    "workout routines, and progress tracking. You provide guidance on exercise routines, nutrition tips, "
+    "and general fitness-related queries. Be motivational and supportive in your responses."
+)
+
+# Create the Gradio interface
 demo = gr.ChatInterface(
     respond,
     additional_inputs=[
-        gr.Textbox(value="You are the Travel Guide chatbot. Your purpose is to provide users with accurate, helpful, and up-to-date travel advice. This includes guidance on destinations, travel tips, accommodations, local cuisine, cultural insights, and safety information.", label="System message"),
+        gr.Textbox(value=system_message, label="System message"),
         gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens"),
         gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature"),
         gr.Slider(
@@ -58,6 +54,7 @@ demo = gr.ChatInterface(
     ],
 )
 
-
 if __name__ == "__main__":
     demo.launch()
+
+
