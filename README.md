@@ -37,5 +37,5 @@ To make your chatbot truly unique, consider personalizing it extensively. For in
 
  If you wish to contribute: Please fork this repo. 
 
- For any question reach me out @ turna.fardousi@gmail.com
+ For any question reach me out @ aj4374757@alphacollege.me
 
